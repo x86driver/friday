@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 int leap(int year)
 {
@@ -22,12 +24,15 @@ int main(int argc, char **argv)
     struct tm *tm;
     time_t t = time(NULL);
     int days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int sum[31][7];
+    int max = 0, min = INT_MAX;
 
     if (argc != 2) {
         printf("Usage: %s count\n", argv[0]);
         exit(1);
     }
 
+    memset(&sum, 0, sizeof(sum));
     count = atoi(argv[1]);
     tm = localtime(&t);
     year = tm->tm_year + 1900;
@@ -57,10 +62,25 @@ int main(int argc, char **argv)
             ++mon;
         }
         ++total;
+        ++sum[day-1][wday-1];
     }
 
 
     printf("Yes: %d, No: %d, Ratio: %f%%\n", friday, (total - friday), (double)(friday/1.0/total*100.0));
+    printf("   Mon  Tue  Wed  Thu  Fri  Sat  Sun\n");
+    for (i = 0; i < 31; ++i) {
+        int j;
+        printf("%02d ", i+1);
+        for (j = 0; j < 7; ++j) {
+            printf("%04d ", sum[i][j]);
+            if (sum[i][j] > max)
+                max = sum[i][j];
+            if (min > sum[i][j])
+                min = sum[i][j];
+        }
+        printf("\n");
+    }
+    printf("Max: %d, Min: %d\n", max, min);
     return 0;
 }
 
